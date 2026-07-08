@@ -38,7 +38,6 @@ jobs:
         if: steps.current.outputs.version != steps.release.outputs.version
         run: |
           TAG="${{ steps.release.outputs.tag }}"
-          VERSION="${{ steps.release.outputs.version }}"
           REPO="rcieri/glab-tui"
 
           ASSETS="
@@ -61,51 +60,11 @@ jobs:
           MACOS_AMD64=$(sha256sum "${TMPDIR}/glab-tui-macos-amd64.tar.gz" | cut -d' ' -f1)
           MACOS_ARM64=$(sha256sum "${TMPDIR}/glab-tui-macos-arm64.tar.gz" | cut -d' ' -f1)
 
-          cat > Formula/glab-tui.rb <<FORMULA
-class GlabTui < Formula
-  desc "Terminal user interface for GitLab and GitHub"
-  homepage "https://github.com/rcieri/glab-tui"
-  license "MIT"
-
-  depends_on "gh"
-  depends_on "glab" => :recommended
-
-  on_macos do
-    on_intel do
-      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-macos-amd64.tar.gz"
-      sha256 "${MACOS_AMD64}"
-    end
-    on_arm do
-      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-macos-arm64.tar.gz"
-      sha256 "${MACOS_ARM64}"
-    end
-  end
-
-  on_linux do
-    on_intel do
-      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-linux-amd64.tar.gz"
-      sha256 "${LINUX_AMD64}"
-    end
-    on_arm do
-      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-linux-arm64.tar.gz"
-      sha256 "${LINUX_ARM64}"
-    end
-  end
-
-  livecheck do
-    url :stable
-    strategy :github_latest
-  end
-
-  def install
-    bin.install "glab-tui"
-  end
-
-  test do
-    system "#{bin}/glab-tui", "--help"
-  end
-end
-FORMULA
+          sed -i "s|/download/v[0-9.]*/glab-tui-|/download/${TAG}/glab-tui-|g" Formula/glab-tui.rb
+          sed -i "/glab-tui-macos-amd64/,/sha256/{s/sha256 \"[a-f0-9]*\"/sha256 \"${MACOS_AMD64}\"/}" Formula/glab-tui.rb
+          sed -i "/glab-tui-macos-arm64/,/sha256/{s/sha256 \"[a-f0-9]*\"/sha256 \"${MACOS_ARM64}\"/}" Formula/glab-tui.rb
+          sed -i "/glab-tui-linux-amd64/,/sha256/{s/sha256 \"[a-f0-9]*\"/sha256 \"${LINUX_AMD64}\"/}" Formula/glab-tui.rb
+          sed -i "/glab-tui-linux-arm64/,/sha256/{s/sha256 \"[a-f0-9]*\"/sha256 \"${LINUX_ARM64}\"/}" Formula/glab-tui.rb
 
       - name: Commit and push
         if: steps.current.outputs.version != steps.release.outputs.version
