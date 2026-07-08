@@ -49,7 +49,7 @@ jobs:
 
       - name: Verify version
         run: |
-          actual=$(glab-tui --version | grep -oP '\d+\.\d+\.\d+')
+          actual=$(glab-tui --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           expected="${{ steps.version.outputs.version }}"
           if [ "$actual" != "$expected" ]; then
             echo "FAIL: installed version ($actual) != expected ($expected)"
