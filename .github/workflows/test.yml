@@ -1,0 +1,58 @@
+name: Test formula
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check latest release matches formula
+        run: |
+          latest_tag=$(gh release view --repo rcieri/glab-tui --json tagName --jq .tagName)
+          latest_version="${latest_tag#v}"
+          formula_version=$(sed -n 's|.*/download/v\([0-9.]*\)/glab-tui-.*|\1|p' Formula/glab-tui.rb | head -1)
+          if [ "$latest_version" != "$formula_version" ]; then
+            echo "FAIL: Formula version ($formula_version) != latest release ($latest_version)"
+            exit 1
+          fi
+          echo "OK: Formula is at $formula_version"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  install-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get expected version
+        id: version
+        run: |
+          tag=$(gh release view --repo rcieri/glab-tui --json tagName --jq .tagName)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install formula
+        run: brew install --formula Formula/glab-tui.rb
+
+      - name: Verify version
+        run: |
+          actual=$(glab-tui --version | grep -oP '\d+\.\d+\.\d+')
+          expected="${{ steps.version.outputs.version }}"
+          if [ "$actual" != "$expected" ]; then
+            echo "FAIL: installed version ($actual) != expected ($expected)"
+            exit 1
+          fi
+          echo "OK: installed version $actual matches expected $expected"
