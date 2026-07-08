@@ -45,7 +45,7 @@ jobs:
       - uses: Homebrew/actions/setup-homebrew@master
 
       - name: Install formula
-        run: brew install --formula Formula/glab-tui.rb
+        run: brew install rcieri/glab-tui/glab-tui
 
       - name: Verify version
         run: |
