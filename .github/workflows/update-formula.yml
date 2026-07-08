@@ -1,0 +1,117 @@
+name: Update formula
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest release
+        id: release
+        run: |
+          tag=$(gh release view --repo rcieri/glab-tui --json tagName --jq .tagName)
+          version="${tag#v}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Check current formula version
+        id: current
+        run: |
+          if [ -f Formula/glab-tui.rb ]; then
+            current=$(grep -oP 'download/v\K[0-9]+\.[0-9]+\.[0-9]+' Formula/glab-tui.rb | head -1)
+            echo "version=$current" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update formula
+        if: steps.current.outputs.version != steps.release.outputs.version
+        run: |
+          TAG="${{ steps.release.outputs.tag }}"
+          VERSION="${{ steps.release.outputs.version }}"
+          REPO="rcieri/glab-tui"
+
+          ASSETS="
+          glab-tui-linux-amd64.tar.gz
+          glab-tui-linux-arm64.tar.gz
+          glab-tui-macos-amd64.tar.gz
+          glab-tui-macos-arm64.tar.gz
+          glab-tui-windows-amd64.zip
+          "
+
+          TMPDIR=$(mktemp -d)
+          trap 'rm -rf "$TMPDIR"' EXIT INT TERM
+
+          for asset in $ASSETS; do
+            curl -sSfL "https://github.com/${REPO}/releases/download/${TAG}/${asset}" -o "${TMPDIR}/${asset}"
+          done
+
+          LINUX_AMD64=$(sha256sum "${TMPDIR}/glab-tui-linux-amd64.tar.gz" | cut -d' ' -f1)
+          LINUX_ARM64=$(sha256sum "${TMPDIR}/glab-tui-linux-arm64.tar.gz" | cut -d' ' -f1)
+          MACOS_AMD64=$(sha256sum "${TMPDIR}/glab-tui-macos-amd64.tar.gz" | cut -d' ' -f1)
+          MACOS_ARM64=$(sha256sum "${TMPDIR}/glab-tui-macos-arm64.tar.gz" | cut -d' ' -f1)
+
+          cat > Formula/glab-tui.rb <<FORMULA
+class GlabTui < Formula
+  desc "Terminal user interface for GitLab and GitHub"
+  homepage "https://github.com/rcieri/glab-tui"
+  license "MIT"
+
+  depends_on "gh"
+  depends_on "glab" => :recommended
+
+  on_macos do
+    on_intel do
+      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-macos-amd64.tar.gz"
+      sha256 "${MACOS_AMD64}"
+    end
+    on_arm do
+      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-macos-arm64.tar.gz"
+      sha256 "${MACOS_ARM64}"
+    end
+  end
+
+  on_linux do
+    on_intel do
+      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-linux-amd64.tar.gz"
+      sha256 "${LINUX_AMD64}"
+    end
+    on_arm do
+      url "https://github.com/${REPO}/releases/download/${TAG}/glab-tui-linux-arm64.tar.gz"
+      sha256 "${LINUX_ARM64}"
+    end
+  end
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
+
+  def install
+    bin.install "glab-tui"
+  end
+
+  test do
+    system "#{bin}/glab-tui", "--help"
+  end
+end
+FORMULA
+
+      - name: Commit and push
+        if: steps.current.outputs.version != steps.release.outputs.version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add Formula/glab-tui.rb
+          git commit -m "Update glab-tui to ${{ steps.release.outputs.tag }}"
+          git push
