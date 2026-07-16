@@ -9,22 +9,22 @@ class GlabTui < Formula
   on_macos do
     on_intel do
       url "https://github.com/rcieri/glab-tui/releases/download/v0.6.0/glab-tui-macos-amd64.tar.gz"
-      sha256 "7afbc882fcebef9008d518ec875eeffb22a759043ac131e6f36bfbcb3f3d849b"
+      sha256 "8f0dd9f7f8d8e0e213ae7f6c896fe7fdb33b4926b80a6244da1354d6af4c67e1"
     end
     on_arm do
       url "https://github.com/rcieri/glab-tui/releases/download/v0.6.0/glab-tui-macos-arm64.tar.gz"
-      sha256 "fc7b03260d12ed941efc791bceba9d8fae77ce589fe8e99d00157bdbf533955f"
+      sha256 "9f5b097b025e8634228fd574f4dae49e49716cc8f939aead06e388971808e3c0"
     end
   end
 
   on_linux do
     on_intel do
       url "https://github.com/rcieri/glab-tui/releases/download/v0.6.0/glab-tui-linux-amd64.tar.gz"
-      sha256 "c3011b2728808964e960f236d5156861454e9d6002a1ed558dd5386607013a1a"
+      sha256 "48134b060024885096e4f68922814131fa3ecad62d568767d77719fe72d63f75"
     end
     on_arm do
       url "https://github.com/rcieri/glab-tui/releases/download/v0.6.0/glab-tui-linux-arm64.tar.gz"
-      sha256 "b2a5025f5cae22eea8c6b0792e48285caed1e42b9d1a0e029c3e557ba9fe7672"
+      sha256 "ff15a16670b82325992357ea7574c19993db13bda55ed56bdbdf284643d3849f"
     end
   end
 
