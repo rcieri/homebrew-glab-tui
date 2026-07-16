@@ -35,7 +35,7 @@ jobs:
           fi
 
       - name: Update formula
-        if: steps.current.outputs.version != steps.release.outputs.version
+        # if: steps.current.outputs.version != steps.release.outputs.version
         run: |
           TAG="${{ steps.release.outputs.tag }}"
           REPO="rcieri/glab-tui"
