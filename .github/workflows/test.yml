@@ -64,8 +64,8 @@ jobs:
       - name: Verify musl binary (Linux)
         if: runner.os == 'Linux'
         run: |
-          bin_path=$(which glab-tui)
+          bin_path=$(realpath "$(which glab-tui)")
           file "$bin_path"
-          file "$bin_path" | grep -qi 'statically linked' || { echo "Binary is not statically linked"; exit 1; }
+          file "$bin_path" | grep -qiE 'static(-pie)? linked' || { echo "Binary is not statically linked"; exit 1; }
           docker run --rm -v "$bin_path:/usr/local/bin/glab-tui:ro" alpine:latest glab-tui --version
           docker run --rm -v "$bin_path:/usr/local/bin/glab-tui:ro" alpine:latest glab-tui --help
