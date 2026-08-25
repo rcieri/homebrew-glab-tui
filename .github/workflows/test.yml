@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, ubuntu-22.04, macos-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +48,9 @@ jobs:
       - name: Install formula
         run: brew install rcieri/glab-tui/glab-tui
 
+      - name: Run brew test
+        run: brew test rcieri/glab-tui/glab-tui
+
       - name: Verify version
         run: |
           actual=$(glab-tui --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
@@ -57,3 +60,12 @@ jobs:
             exit 1
           fi
           echo "OK: installed version $actual matches expected $expected"
+
+      - name: Verify musl binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          bin_path=$(which glab-tui)
+          file "$bin_path"
+          file "$bin_path" | grep -qi 'statically linked' || { echo "Binary is not statically linked"; exit 1; }
+          docker run --rm -v "$bin_path:/usr/local/bin/glab-tui:ro" alpine:latest glab-tui --version
+          docker run --rm -v "$bin_path:/usr/local/bin/glab-tui:ro" alpine:latest glab-tui --help
