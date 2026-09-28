@@ -40,6 +40,6 @@ class GlabTui < Formula
   end
 
   test do
-    system "\#{bin}/glab-tui", "--help"
+    system "#{bin}/glab-tui", "--help"
   end
 end
