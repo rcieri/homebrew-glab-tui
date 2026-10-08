@@ -8,12 +8,12 @@ class GlabTui < Formula
 
   on_macos do
     on_intel do
-      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.2/glab-tui-macos-amd64.tar.gz"
-      sha256 "20bc76e5e9efddfb9a590d0d8e54e8b6e62ab5084bd07116172a925a0bbe0036"
+      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.3/glab-tui-macos-amd64.tar.gz"
+      sha256 "cd39a25c26b1b458a6f7d7a8594ee8ade0fe0d8c8d8bfdd7b22a3e1fa19618eb"
     end
     on_arm do
-      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.2/glab-tui-macos-arm64.tar.gz"
-      sha256 "257182615798912f7f504beea6696d942f11f4b7664e8106fb6a6a9dcbb6969f"
+      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.3/glab-tui-macos-arm64.tar.gz"
+      sha256 "5fe8766f65de0112c1b61c644c8ddf53c0d48f1d64aa8c3239a114cd53e0dbbc"
     end
   end
 
@@ -21,12 +21,12 @@ class GlabTui < Formula
   # version, matching Homebrew's minimum glibc support baseline.
   on_linux do
     on_intel do
-      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.2/glab-tui-linux-amd64-musl.tar.gz"
-      sha256 "b6df98bb30ddde6e3b305e8e8cac50d4292a53c4eae768643ede19b8e272cd48"
+      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.3/glab-tui-linux-amd64-musl.tar.gz"
+      sha256 "138447b77c515163ddcf72aeedbbc5aed2903d78f9ae1b80e56d8232967f688a"
     end
     on_arm do
-      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.2/glab-tui-linux-arm64-musl.tar.gz"
-      sha256 "83d116cc537a87d4196fbd68d544c143b9f37058d2e44bd2e641d363b559d50e"
+      url "https://github.com/rcieri/glab-tui/releases/download/v0.9.3/glab-tui-linux-arm64-musl.tar.gz"
+      sha256 "6456e9007d241d2197e862b9e90e12ca7ab76f7a884d281aac063156bb028d69"
     end
   end
 
